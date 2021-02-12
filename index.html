@@ -1,5 +1,5 @@
 <head>
-  <title>Mega Clicker</title>
+  <title>Mega Clicker | Build 2</title>
 </head>
 <body>
   <div id="colums">
@@ -17,7 +17,7 @@
     <center>
       <div id="game">
         <h1 id="gameTitle">Mega Clicker</h1>
-        <button id="tap" onclick="tap()">+1 points</button><button id="upTap" onclick="upTap()" disabled="true">Upgrade tap: 10 gold</button>
+        <button id="tap" onclick="tap()">+1 points</button><button id="upTap" onclick="upTap()">Upgrade tap: 10 gold</button>
         <div id="wood">
           <button id="woodGear" onclick="upgradeGear('wood')">Buy wood gear: 50 points</button><button id="woodGearUpgrade" onclick="doubleGear('wood')">Gear efficiency: 5 ultra</button>
         </div>
@@ -60,28 +60,31 @@
   
   var allPoints = 0, points = 0, gold = 0, tapper = 1, clicks = 0;
   
+  var unlocks = [
+    {
+      name: 'wood',
+      price: 100,
+      enabled: true,
+      unlocked: false
+    }
+  ];
+  
   if(document.cookie) { //Set everything to its cookie value
     points = parseInt(document.cookie.split('; ').find(r => r.startsWith('points=')).split('=')[1]);
     gold = parseInt(document.cookie.split('; ').find(r => r.startsWith('gold=')).split('=')[1]);
     tapper = parseInt(document.cookie.split('; ').find(r => r.startsWith('tapper=')).split('=')[1]);
     clicks = parseInt(document.cookie.split('; ').find(r => r.startsWith('clicks=')).split('=')[1]);
     allPoints = parseInt(document.cookie.split('; ').find(r => r.startsWith('allPoints=')).split('=')[1]);
+    unlocks = JSON.parse(document.cookie.split('; ').find(r => r.startsWith('unlocks=')).split('=')[1]);
   };
-  
-  const unlocks = [
-    {
-      name: 'wood',
-      price: 100,
-      enabled: true
-    }
-  ]
   
   function unlock(item) {
     const obj = unlocks.find(x => x.name === item);
     points -= obj.price;
     document.getElementById(item).style.display = 'initial';
     document.getElementById(item+'Unlock').style.display = 'none';
-    item.enabled = false;
+    obj.enabled = false;
+    obj.unlocked = true;
   };
   
   function random(max, min) {
@@ -128,14 +131,21 @@
       document.getElementById("stats").style.visibility = "visible";
     };
         
-    if(points >= 100) {
-      toggle("unlocks", 'visible');
-    };
+    if(points >= 100){
+      toggle('unlocks', 'visible')
+    }
     
-    const toUnlock = unlocks.filter(x => points >= x.price && x.enabled);
+    const toUnlock = unlocks.filter(x => points >= x.price);
     
     toUnlock.forEach(x => {
-      document.getElementById(x.name+'Unlock').style.visibility = 'visible';
+      if(x.enabled === true) document.getElementById(x.name+'Unlock').style.display = 'initial';
+      else if(x.enabled === false) document.getElementById(x.name+'Unlock').style.display = 'none'
+    });
+    
+    const toUnlock2 = unlocks.filter(x => x.unlocked);
+    
+    toUnlock2.forEach(x => {
+      document.getElementById(x.name).style.display = 'initial';
     });
     
     
@@ -152,6 +162,7 @@
     document.cookie = `gold=${gold}`;
     document.cookie = `tapper=${tapper}`;
     document.cookie = `clicks=${clicks}`;
+    document.cookie = `unlocks=${JSON.stringify(unlocks)}`;
     document.getElementById("saving").style.visibility = 'visible';
     setTimeout(() => {
       document.getElementById("saving").style.visibility = 'hidden'
@@ -304,9 +315,5 @@
   
   #curr2, #totalPoints {
     border-style: none none none solid
-  }
-  
-  #upTap:hover {
-    cursor: not-allowed;
   }
 </style>
