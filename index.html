@@ -1,0 +1,312 @@
+<head>
+  <title>Mega Clicker</title>
+</head>
+<body>
+  <div id="colums">
+    <div id="info">
+      <h1 id="infoTitle">Information</h1>
+      <center>
+        <table id="currency">
+          <tr>
+            <td id="curr">0 points</td>
+            <td id="curr2">0 ultra</td>
+          </tr>
+        </table>
+      </center>
+    </div>
+    <center>
+      <div id="game">
+        <h1 id="gameTitle">Mega Clicker</h1>
+        <button id="tap" onclick="tap()">+1 points</button><button id="upTap" onclick="upTap()" disabled="true">Upgrade tap: 10 gold</button>
+        <div id="wood">
+          <button id="woodGear" onclick="upgradeGear('wood')">Buy wood gear: 50 points</button><button id="woodGearUpgrade" onclick="doubleGear('wood')">Gear efficiency: 5 ultra</button>
+        </div>
+      </div>
+      <div id="stats">
+        <h1 id="statsTitle">Statistics</h1>
+        <center>
+          <table id="statistics">
+            <tr>
+              <td id="totalClicks">All clicks: 0</td>
+              <td id="totalPoints">All points: 0</td>
+            </tr>
+            <tr>
+              <td id="totalUltra">All ultra: 0</td>
+            </tr>
+          </table>
+        </center>
+      </div>
+    </center>
+  </div><br><br><br><br><br><br><br><br>
+  <div id="cookies">
+    <button id="reset" onclick="reset()">Reset</button>
+    <button id="showCooks" onclick="showCooks()">View cookies</button>
+  </div>
+  <div id="save">
+    <p id="saving">Saving game</p>
+  </div>
+  <div id="null" style="visibility:hidden">
+    
+  </div>
+  <center>
+    <div id="unlocks">
+      <h1 id="unlockTitle">Unlocks</h1>
+      <button id="woodUnlock" onclick="unlock('wood')">Unlock wood upgrades 100 points</button>
+    </div>
+  </center>
+  
+</body>
+<script>
+  
+  var allPoints = 0, points = 0, gold = 0, tapper = 1, clicks = 0;
+  
+  if(document.cookie) { //Set everything to its cookie value
+    points = parseInt(document.cookie.split('; ').find(r => r.startsWith('points=')).split('=')[1]);
+    gold = parseInt(document.cookie.split('; ').find(r => r.startsWith('gold=')).split('=')[1]);
+    tapper = parseInt(document.cookie.split('; ').find(r => r.startsWith('tapper=')).split('=')[1]);
+    clicks = parseInt(document.cookie.split('; ').find(r => r.startsWith('clicks=')).split('=')[1]);
+    allPoints = parseInt(document.cookie.split('; ').find(r => r.startsWith('allPoints=')).split('=')[1]);
+  };
+  
+  const unlocks = [
+    {
+      name: 'wood',
+      price: 100,
+      enabled: true
+    }
+  ]
+  
+  function unlock(item) {
+    const obj = unlocks.find(x => x.name === item);
+    points -= obj.price;
+    document.getElementById(item).style.display = 'initial';
+    document.getElementById(item+'Unlock').style.display = 'none';
+    item.enabled = false;
+  };
+  
+  function random(max, min) {
+    return Math.floor(Math.random() * (max - min)) + min;  
+  };
+  
+  function tap() {
+    points += tapper;
+    allPoints += tapper;
+    clicks++;
+    if(random(5000, 1) <= 2) gold++;
+  };
+  
+  function reset() {
+    const confirmation = confirm(`Are you sure you want to fully reset the game?`)
+    if(confirmation === true) {
+      const allCooks = document.cookie.split(';');
+      for(let i = 0; i < allCooks.length; i++) {
+        document.cookie = allCooks[i] + "=;expires=" + new Date(0).toUTCString();
+      };
+      window.location.reload();
+    };
+  };
+  
+  function showCooks() {
+    alert(document.cookie);
+  };
+  
+  function toggle(id, toggle) {
+    document.getElementById(id).style.visibility = toggle;
+  };
+  
+  function toggleDis(id, toggle) {
+    document.getElementById(id).disabled = toggle;
+  };
+  
+  function unlockCheck(id) {
+    return document.getElementById(id).style.visibility;
+  };
+  
+  function update() {
+    if(points > 0) {
+      document.getElementById("info").style.visibility = "visible";
+      document.getElementById("stats").style.visibility = "visible";
+    };
+        
+    if(points >= 100) {
+      toggle("unlocks", 'visible');
+    };
+    
+    const toUnlock = unlocks.filter(x => points >= x.price && x.enabled);
+    
+    toUnlock.forEach(x => {
+      document.getElementById(x.name+'Unlock').style.visibility = 'visible';
+    });
+    
+    
+    document.getElementById("curr").innerHTML = `${points} points`;
+    document.getElementById("curr2").innerHTML = `${gold} ultra`;
+    document.getElementById("totalClicks").innerHTML = `All clicks: ${clicks}`;
+    document.getElementById("totalPoints").innerHTML = `All points: ${allPoints}`;
+    document.getElementById("totalUltra").innerHTML = `All ultra: ${gold}`;
+  };
+  
+  window.setInterval(() => {
+    document.cookie = `allPoints=${allPoints}`
+    document.cookie = `points=${points}`;
+    document.cookie = `gold=${gold}`;
+    document.cookie = `tapper=${tapper}`;
+    document.cookie = `clicks=${clicks}`;
+    document.getElementById("saving").style.visibility = 'visible';
+    setTimeout(() => {
+      document.getElementById("saving").style.visibility = 'hidden'
+    }, 3000)
+  }, 5000)
+  
+  window.setInterval(() => {update()}, 100)
+</script>
+<style>
+  #wood {
+    display: none;
+  }
+  
+  #saving {
+    visibility: hidden;
+    float: right;
+    bottom: 0px;
+    right: 20px;
+    position: fixed;
+  }
+  
+  #cookies {
+    position: fixed;
+    bottom: 0px;
+    float: left;
+  }
+  
+  #showCooks, #reset {
+    width: 100px;
+    float: left;
+  }
+  
+  #game {
+    text-align: center;
+    float: left;
+    left: 50%;
+    border: 15px ridge darkgray;
+    width: 30%;
+    color: black;
+    font-size: 115%;
+    text-shadow: 1px 1px gray,
+                 2px 2px gray;
+    margin-right: 5px;
+    margin-left: 5px;
+  }
+  
+  #info {
+    text-align: center;
+    float: left;
+    left: 50%;
+    border: 15px ridge darkgray;
+    width: 30%;
+    color: black;
+    font-size: 115%;
+    text-shadow: 1px 1px gray,
+                 2px 2px gray;
+    visibility: hidden;
+  }
+  
+  #stats {
+    text-align: center;
+    float: left;
+    left: 30%;
+    border: 15px ridge darkgray;
+    width: 30%;
+    color: black;
+    font-size: 115%;
+    text-shadow: 1px 1px gray,
+                 2px 2px gray;
+    visibility: hidden;
+  }
+  
+  #unlocks, #null, #null2 {
+    float: left;
+    text-align: center;
+    left: 30%;
+    border: 15px ridge darkgray;
+    width: 30%;
+    color: black;
+    font-size: 115%;
+    text-shadow: 1px 1px gray,
+                 2px 2px gray;
+  }
+  
+  #unlocks {
+    margin-left: 32.5%;
+    margin-right: 50%;
+    visibility: hidden;
+  }
+  
+  body {
+    background-color: lightgray;
+  }
+  
+  button {
+    position: relative;
+    float: center;
+    padding: 2px;
+    width: 40%;
+    bottom: 8px;
+    background-color: darkgray;
+    border-style: none none solid solid;
+    border: 2.5px solid black;
+    outline:none;
+    font-size: 15px;
+    margin-left: 5px;
+    margin-top: 2px;
+  }
+  
+  button:hover {
+    background-color: gray;
+  }
+  
+  button:active {
+    background-color: #gray;
+    transform: translateY(3px);
+  }
+  
+  #gameTitle, #unlockTitle {
+    border: 4px solid darkgray;
+    border-style: none none ridge none;
+  }
+  
+  #infoTitle {
+    border: 4px solid darkgray;
+    border-style: none none ridge none;
+  }
+  
+  #statsTitle {
+    border: 4px solid darkgray;
+    border-style: none none ridge none;
+  }
+  
+  table, td {
+    font-size: 18px;
+    float: center;
+    border: 2px solid black;
+    border-collapse: collapse;
+    width: 50%;
+    text-align: center;
+    border-style: none;
+    position: relative;
+    bottom: 3px;
+    overflow: visible;
+  }
+  
+  #totalUltra {
+    left: 25%;
+  }
+  
+  #curr2, #totalPoints {
+    border-style: none none none solid
+  }
+  
+  #upTap:hover {
+    cursor: not-allowed;
+  }
+</style>
