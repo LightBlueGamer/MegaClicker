@@ -79,8 +79,9 @@
   visibility: hidden;
 }
 
-body {
+body, head {
   background-color: lightgray;
+  cursor: pointer;
 }
 
 button {
@@ -96,6 +97,7 @@ button {
   font-size: 15px;
   margin-left: 5px;
   margin-top: 2px;
+  cursor: pointer;
 }
 
 button:hover {

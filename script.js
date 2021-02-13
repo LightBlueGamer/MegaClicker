@@ -1,4 +1,4 @@
-var allPoints = 0,
+let allPoints = 0,
     points = 0,
     gold = 0,
     tapper = 1,
@@ -8,82 +8,116 @@ var unlocks = [
   {
     name: "wood",
     price: 100,
-    enabled: true,
+    enabled: false,
     unlocked: false
   }
 ];
 
+var checkUnlocks = unlocks;
+
 var upgrades = [
   {
     name: "woodGear",
+    type: "points",
     price: 50
   },
   {
     name: "woodGearUpgrade",
+    type: "ultra",
     price: 5
+  },
+  {
+    name: "upTap",
+    type: "ultra",
+    price: 10
   }
 ];
+
+var checkUpgrades = upgrades;
 
 const cookies = document.cookie.split("; ");
 
 if (document.cookie) { 2//Set everything to its cookie value
   if (cookies.some(x => x.startsWith("points=")))
     points = parseInt(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("points="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("gold=")))
     gold = parseInt(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("gold="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("tapper=")))
     tapper = parseInt(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("tapper="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("clicks=")))
     clicks = parseInt(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("clicks="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("allPoints=")))
     allPoints = parseInt(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("allPoints="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("unlocks=")))
     unlocks = JSON.parse(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("unlocks="))
         .split("=")[1]
     );
   if (cookies.some(x => x.startsWith("upgrades=")))
     upgrades = JSON.parse(
-      document.cookie
-        .split("; ")
+      cookies
         .find(r => r.startsWith("upgrades="))
         .split("=")[1]
     );
-}
+};
+
+if(upgrades.length < checkUpgrades.length){
+  const toAdd = checkUpgrades.splice(upgrades.length, checkUpgrades.length - upgrades.length)
+  toAdd.forEach(x => upgrades.push(x));
+};
+
+if(unlocks.length < checkUnlocks.length){
+  const toAdd = checkUnlocks.splice(unlocks.length, checkUnlocks.length - unlocks.length)
+  toAdd.forEach(x => unlocks.push(x));
+};
+
+function toggleUpgradePoints(object) {
+  if(points >= object.price) {
+    document.getElementById(object.name).disabled = false;
+    document.getElementById(object.name).setAttribute('style','cursor:pointer;');
+  } else {
+    document.getElementById(object.name).disabled = true;
+    document.getElementById(object.name).setAttribute('style','cursor:not-allowed;');
+  };
+};
+
+function toggleUpgradeGold(object) {
+  if(gold >= object.price) {
+    document.getElementById(object.name).disabled = false;
+    document.getElementById(object.name).setAttribute('style','cursor:pointer;');
+  } else {
+    document.getElementById(object.name).disabled = true;
+    document.getElementById(object.name).setAttribute('style','cursor:not-allowed;');
+  };
+};
 
 function unlock(item) {
   const obj = unlocks.find(x => x.name === item);
+  if(points <= obj.price) return;
   points -= obj.price;
   document.getElementById(item).style.display = "initial";
   document.getElementById(item + "Unlock").style.display = "none";
-  obj.enabled = false;
   obj.unlocked = true;
 }
 
@@ -137,20 +171,18 @@ function update() {
     toggle("unlocks", "visible");
   }
 
-  const toUnlock = unlocks.filter(x => points >= x.price);
-
-  toUnlock.forEach(x => {
-    if (x.enabled === true)
+  unlocks.forEach(x => {
+    if (points >= x.price && x.unlocked === false)
       document.getElementById(x.name + "Unlock").style.display = "initial";
-    else if (x.enabled === false)
+    else if (points < x.price || x.unlocked === true)
       document.getElementById(x.name + "Unlock").style.display = "none";
   });
-
-  const toUnlock2 = unlocks.filter(x => x.unlocked);
-
-  toUnlock2.forEach(x => {
-    document.getElementById(x.name).style.display = "initial";
-  });
+  
+  const unlockUpgradesPoints = upgrades.filter(x => x.type === "points");
+  const unlockUpgradesGold = upgrades.filter(x => x.type === "ultra");
+  
+  unlockUpgradesPoints.forEach(x => toggleUpgradePoints(x));
+  unlockUpgradesGold.forEach(x => toggleUpgradeGold(x));
 
   document.getElementById("curr").innerHTML = `${points} points`;
   document.getElementById("curr2").innerHTML = `${gold} ultra`;
