@@ -1,11 +1,147 @@
-/* CSS files add styling rules to your content */
-
-body {
-  font-family: helvetica, arial, sans-serif;
-  margin: 2em;
+#wood {
+  display: none;
 }
 
-h1 {
-  font-style: italic;
-  color: #373fff;
+#saving {
+  visibility: hidden;
+  float: right;
+  bottom: 0px;
+  right: 20px;
+  position: fixed;
+}
+
+#cookies {
+  position: fixed;
+  bottom: 0px;
+  float: left;
+}
+
+#showCooks,
+#reset,
+#saveGame {
+  width: 100px;
+  float: left;
+}
+
+#game {
+  text-align: center;
+  float: left;
+  left: 50%;
+  border: 15px ridge darkgray;
+  width: 30%;
+  color: black;
+  font-size: 115%;
+  text-shadow: 1px 1px gray, 2px 2px gray;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
+#info {
+  text-align: center;
+  float: left;
+  left: 50%;
+  border: 15px ridge darkgray;
+  width: 30%;
+  color: black;
+  font-size: 115%;
+  text-shadow: 1px 1px gray, 2px 2px gray;
+  visibility: hidden;
+}
+
+#stats {
+  text-align: center;
+  float: left;
+  left: 30%;
+  border: 15px ridge darkgray;
+  width: 30%;
+  color: black;
+  font-size: 115%;
+  text-shadow: 1px 1px gray, 2px 2px gray;
+  visibility: hidden;
+}
+
+#unlocks,
+#null,
+#null2 {
+  float: left;
+  text-align: center;
+  left: 30%;
+  border: 15px ridge darkgray;
+  width: 30%;
+  color: black;
+  font-size: 115%;
+  text-shadow: 1px 1px gray, 2px 2px gray;
+}
+
+#unlocks {
+  margin-left: 32.5%;
+  margin-right: 50%;
+  visibility: hidden;
+}
+
+body {
+  background-color: lightgray;
+}
+
+button {
+  position: relative;
+  float: center;
+  padding: 2px;
+  width: 40%;
+  bottom: 8px;
+  background-color: darkgray;
+  border-style: none none solid solid;
+  border: 2.5px solid black;
+  outline: none;
+  font-size: 15px;
+  margin-left: 5px;
+  margin-top: 2px;
+}
+
+button:hover {
+  background-color: gray;
+}
+
+button:active {
+  background-color: #gray;
+  transform: translateY(3px);
+}
+
+#gameTitle,
+#unlockTitle {
+  border: 4px solid darkgray;
+  border-style: none none ridge none;
+}
+
+#infoTitle {
+  border: 4px solid darkgray;
+  border-style: none none ridge none;
+}
+
+#statsTitle {
+  border: 4px solid darkgray;
+  border-style: none none ridge none;
+}
+
+table,
+td {
+  font-size: 18px;
+  float: center;
+  border: 2px solid black;
+  border-collapse: collapse;
+  width: 50%;
+  text-align: center;
+  border-style: none;
+  position: relative;
+  bottom: 3px;
+  overflow: visible;
+}
+
+#totalUltra {
+  left: 25%;
+}
+
+#curr2,
+#totalPoints {
+  border-style: none none none solid;
 }
