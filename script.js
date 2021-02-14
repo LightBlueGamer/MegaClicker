@@ -35,51 +35,59 @@ var upgrades = [
 
 var checkUpgrades = upgrades;
 
+let purchased = [];
+
 const cookies = document.cookie.split("; ");
 
 if (document.cookie) { 2//Set everything to its cookie value
-  if (cookies.some(x => x.startsWith("points=")))
+  if (cookies.some(x => x.startsWith("points="))){
     points = parseInt(
       cookies
         .find(r => r.startsWith("points="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("gold=")))
+    );}
+  if (cookies.some(x => x.startsWith("gold="))){
     gold = parseInt(
       cookies
         .find(r => r.startsWith("gold="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("tapper=")))
+    );}
+  if (cookies.some(x => x.startsWith("tapper="))){
     tapper = parseInt(
       cookies
         .find(r => r.startsWith("tapper="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("clicks=")))
+    );}
+  if (cookies.some(x => x.startsWith("clicks="))){
     clicks = parseInt(
       cookies
         .find(r => r.startsWith("clicks="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("allPoints=")))
+    );}
+  if (cookies.some(x => x.startsWith("allPoints="))){
     allPoints = parseInt(
       cookies
         .find(r => r.startsWith("allPoints="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("unlocks=")))
+    );}
+  if (cookies.some(x => x.startsWith("unlocks="))){
     unlocks = JSON.parse(
       cookies
         .find(r => r.startsWith("unlocks="))
         .split("=")[1]
-    );
-  if (cookies.some(x => x.startsWith("upgrades=")))
+    );}
+  if (cookies.some(x => x.startsWith("upgrades="))){
     upgrades = JSON.parse(
       cookies
         .find(r => r.startsWith("upgrades="))
         .split("=")[1]
-    );
+    );}
+  if (cookies.some(x => x.startsWith("purchased="))){
+    upgrades = JSON.parse(
+      cookies
+        .find(r => r.startsWith("purchased="))
+        .split("=")[1]
+    );}
 };
 
 if(upgrades.length < checkUpgrades.length){
@@ -112,6 +120,26 @@ function toggleUpgradeGold(object) {
   };
 };
 
+function upgradeGear(item) {
+  const obj = upgrades.find(x => x.name === item+'Gear');
+  if(points <= obj.price) return;
+  points -= obj.price;
+  obj.price = Math.round(obj.price * 1.80);
+  let gather;
+  if(item === 'wood') gather = 1;
+  else if(item === 'stone') gather = 10;
+  else if(item === 'copper') gather = 100;
+  else if(item === 'iron') gather = 1000;
+  
+  if(purchased.some(x => x.name === item+'Gear')){
+    purchased.find(x => x.name === item+'Gear').amount += 1;
+  } else {
+    purchased.push({name: item+'Gear', amount: 1, value: gather});
+  };
+  
+  document.getElementById(item+'Gear').innerHTML = `Buy ${item} gear: ${obj.price} points`
+};
+
 function unlock(item) {
   const obj = unlocks.find(x => x.name === item);
   if(points <= obj.price) return;
@@ -119,6 +147,7 @@ function unlock(item) {
   document.getElementById(item).style.display = "initial";
   document.getElementById(item + "Unlock").style.display = "none";
   obj.unlocked = true;
+  obj.enabled = true;
 }
 
 function random(max, min) {
@@ -140,26 +169,37 @@ function reset() {
     const allCooks = document.cookie.split(";");
     for (let i = 0; i < allCooks.length; i++) {
       document.cookie = allCooks[i] + "=;expires=" + new Date(0).toUTCString();
-    }
+    };
     window.location.reload();
-  }
-}
+  };
+};
 
 function showCooks() {
   alert(document.cookie);
-}
+};
 
 function toggle(id, toggle) {
   document.getElementById(id).style.visibility = toggle;
-}
+};
 
 function toggleDis(id, toggle) {
   document.getElementById(id).disabled = toggle;
-}
+};
 
 function unlockCheck(id) {
   return document.getElementById(id).style.visibility;
-}
+};
+
+function autoPoints() {
+  let toAdd = 0;
+  
+  purchased.forEach(x => toAdd += x.value * x.amount);
+  
+  points += toAdd / 10;
+  allPoints += toAdd / 10;
+};
+
+window.setInterval(() => {autoPoints()}, 100);
 
 function update() {
   if (points > 0) {
@@ -169,13 +209,15 @@ function update() {
 
   if (points >= 0) {
     toggle("unlocks", "visible");
-  }
+  };
 
   unlocks.forEach(x => {
-    if (points >= x.price && x.unlocked === false)
+    if (points >= x.price && x.unlocked === false){
       document.getElementById(x.name + "Unlock").style.display = "initial";
-    else if (points < x.price || x.unlocked === true)
+    } else if (points < x.price || x.unlocked === true){
       document.getElementById(x.name + "Unlock").style.display = "none";
+    };
+    if(x.enabled === true) document.getElementById(x.name).style.display = "initial";
   });
   
   const unlockUpgradesPoints = upgrades.filter(x => x.type === "points");
@@ -184,10 +226,10 @@ function update() {
   unlockUpgradesPoints.forEach(x => toggleUpgradePoints(x));
   unlockUpgradesGold.forEach(x => toggleUpgradeGold(x));
 
-  document.getElementById("curr").innerHTML = `${points} points`;
+  document.getElementById("curr").innerHTML = `${(points).toFixed(1)} points`;
   document.getElementById("curr2").innerHTML = `${gold} ultra`;
   document.getElementById("totalClicks").innerHTML = `All clicks: ${clicks}`;
-  document.getElementById("totalPoints").innerHTML = `All points: ${allPoints}`;
+  document.getElementById("totalPoints").innerHTML = `All points: ${allPoints.toFixed(1)}`;
   document.getElementById("totalUltra").innerHTML = `All ultra: ${gold}`;
 }
 
@@ -199,11 +241,12 @@ function saveGame() {
   document.cookie = `clicks=${clicks}`;
   document.cookie = `unlocks=${JSON.stringify(unlocks)}`;
   document.cookie = `upgrades=${JSON.stringify(upgrades)}`;
+  document.cookie = `purchased=${JSON.stringify(purchased)}`;
   document.getElementById("saving").style.visibility = "visible";
   setTimeout(() => {
     document.getElementById("saving").style.visibility = "hidden";
   }, 3000);
-}
+};
 
 window.setInterval(() => {
   saveGame();
